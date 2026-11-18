@@ -1,0 +1,50 @@
+﻿# Agent de conduite urbaine par Q-Learning
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+Un agent de **Reinforcement Learning** tabulaire qui apprend à conduire
+dans un environnement urbain simulé : feux tricolores, obstacles, piétons.
+Environnement type Gym codé from scratch, Q-Learning implémenté de A à Z
+(pas de `stable-baselines3`), visualisation Pygame temps réel.
+
+![Démo](docs/demo.gif)
+
+## Résultats
+
+| Agent | Récompense moy. | Taux de collision |
+|-------|-----------------|-------------------|
+| Aléatoire | −80 | 55 % |
+| Règles fixes | +60 | 12 % |
+| **Q-Learning** | **+105** | **2.8 %** |
+
+![Courbes d'entraînement](docs/training_curves.png)
+
+Entraînement : 80 000 épisodes, Q-table de 2 880 états × 5 actions.
+
+## Comment ça marche
+
+### État (2 880 états discrets)
+
+| Composante | Valeurs | Description |
+|------------|---------|-------------|
+| Vitesse | 4 | arrêt / lent / moyen / rapide |
+| Feu | 3 | rouge / vert / jaune |
+| Obstacle | 4 | aucun / même voie / gauche / droite |
+| Piéton | 2 | absent / présent |
+| Voie | 3 | gauche / centrale / droite |
+| Phase | 10 | route libre + approche/critique/dépassé pour chaque événement |
+
+La **phase** est essentielle : elle dit à l'agent s'il est à `t=36` (approche)
+ou `t=50` (critique), ce qui lui permet de freiner à la bonne distance.
+
+### Actions (5)
+
+0. **Démarrer** — accélération douce (si v < 0.4)
+1. **Accélérer** — accélération forte
+2. **Freiner** — décélération forte
+3. **Maintenir** — vitesse constante
+4. **Changer de voie** — gauche, ou retour au centre
+
+### Récompense
+
